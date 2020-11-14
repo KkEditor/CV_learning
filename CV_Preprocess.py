@@ -1,20 +1,23 @@
 import cv2
 import numpy as np
-from PIL import Image
 
 
+#Cac ki thuat tien xu ly se ap dung
 
-#ROI
-#Hair removal
-#Noise reduction
-#resize
-#histogram equalize
-
+#Phan tich du lieu:
+# Nhieu anh bi vuong toc -> hair removal
+# Nhieu anh co do tuong ban khong noi bat -> Histogram Equalize
+# Anh co kich co khong giong nhau -> image resize
+# Lam smooth anh -> Noise reduciton
+#Qua trinh:
+#Input image ->Preprocessing
+#Khoanh vung doi tuong -> ROI
+#Ap dung ROI vao Input Image -> Input cho ML
 
 def preprocess(img):
-    img =resize(img,700)
-    img=hair_removal(img)
 
+    img=hair_removal(img)
+    img = resize(img, 700)
     # img=noise_reduction(img,5)
     # img =cv2.equalizeHist(img)
     return img
@@ -27,12 +30,12 @@ def resize(img,size):
     return cv2.resize(img,(size,size))
 
 def hair_removal(img):
-    grayScale = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    kernel = cv2.getStructuringElement(1, (15, 15))
-    blackhat = cv2.morphologyEx(grayScale, cv2.MORPH_BLACKHAT, kernel)
-    ret, thresh2 = cv2.threshold(blackhat, 10, 255, cv2.THRESH_BINARY)
-    thresh2=cv2.equalizeHist(thresh2)
-    dst = cv2.inpaint(img, thresh2, 1, cv2.INPAINT_TELEA)
+    grayScale = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)   # chuyen ve anh xam
+    kernel = cv2.getStructuringElement(1, (15, 15))     # khoi tao cua so truot
+    blackhat = cv2.morphologyEx(grayScale, cv2.MORPH_BLACKHAT, kernel)   # su khac nhau giu dilation+erosion voi anh goc
+    ret, thresh2 = cv2.threshold(blackhat, 10, 255, cv2.THRESH_BINARY)   # mask de remove hair
+    thresh2=cv2.equalizeHist(thresh2)   #lam tang do tuong phan
+    dst = cv2.inpaint(img, thresh2, 1, cv2.INPAINT_TELEA)   #ghep mask voi anh goc
     return dst
 def main():
     img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_0206442.jpg")
