@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
-
-
+from matplotlib import pyplot as plt
 #Cac ki thuat tien xu ly se ap dung
 
 #Phan tich du lieu:
@@ -13,25 +12,24 @@ import numpy as np
 #Input image ->Preprocessing
 #Khoanh vung doi tuong -> ROI
 #Ap dung ROI vao Input Image -> Input cho ML
+#xoa muc
 
+
+ #restore from blur
 def preprocess(img):
     img=hair_removal(img)
-    # img=hist_equalize(img)
-    # img=noise_reduction(img,5)
-    # img =cv2.equalizeHist(img)
-    return img
+    mask=ROI(img)
+    res=apply_mask(img,mask)
 
-def noise_reduction(img,kernel):
-    img=cv2.GaussianBlur(img,(kernel,kernel),sigmaX=10)
-    return img
-def hist_equalize(img):
-    img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
-    # equalize the histogram of the Y channel
-    img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
-    # convert the YUV image back to RGB format
-    img_output = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
-    return img_output
-
+    return res
+def ROI(img):
+    gr=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    mean,std= cv2.meanStdDev(gr)
+    ret, thresh2 = cv2.threshold(gr, int(mean-std), 255, cv2.THRESH_BINARY_INV)
+    return thresh2
+def apply_mask(img,mask):
+    res = cv2.bitwise_and(img, img, mask=mask)
+    return res
 
 def resize(img,size):
     return cv2.resize(img,(size,size))
@@ -46,8 +44,10 @@ def hair_removal(img):
     # cv2.imshow("thresh", thresh2)
     # cv2.imshow("blackhat",blackhat)
     return dst
+
+
 def main():
-    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_0109703.jpg")
+    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_2963146.jpg")
     img=resize(img,700)
     res=preprocess(img)
     cv2.imshow("origin",img)
