@@ -16,17 +16,21 @@ from matplotlib import pyplot as plt
 
 
  #restore from blur
+
+
 def preprocess(img):
     img=hair_removal(img)
+    img=remove_ink(img)
     mask=ROI(img)
     res=apply_mask(img,mask)
-
     return res
+
 def ROI(img):
     gr=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     mean,std= cv2.meanStdDev(gr)
     ret, thresh2 = cv2.threshold(gr, int(mean-std), 255, cv2.THRESH_BINARY_INV)
     return thresh2
+
 def apply_mask(img,mask):
     res = cv2.bitwise_and(img, img, mask=mask)
     return res
@@ -45,9 +49,20 @@ def hair_removal(img):
     # cv2.imshow("blackhat",blackhat)
     return dst
 
+def remove_ink(img):
+    hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    lower_purple = np.array([40, 70, 70])
+    upper_purple = np.array([180, 255, 255])
+    mask = cv2.inRange(hsv, lower_purple, upper_purple)
+    res = cv2.bitwise_and(img, img, mask=mask)
+    cv2.imshow("m",res)
+    ret, thresh2 = cv2.threshold(res, 100, 255, cv2.THRESH_BINARY)
+    thresh2=cv2.cvtColor(thresh2,cv2.COLOR_BGR2GRAY)
+    dst=cv2.bitwise_not(img,img,mask=thresh2)
+    return dst
 
 def main():
-    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_2963146.jpg")
+    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_0164329.jpg")
     img=resize(img,700)
     res=preprocess(img)
     cv2.imshow("origin",img)
