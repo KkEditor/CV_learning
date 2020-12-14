@@ -28,6 +28,8 @@ def shade_removal(img):
     return thr_img
 
 def preprocess(img):
+    # shade_mask=shade_removal(img)
+    # img=apply_mask(img,shade_mask)
     img=hair_removal(img)
     img=remove_ink(img)
     mask=ROI(img)
@@ -64,7 +66,6 @@ def remove_ink(img):
     upper_purple = np.array([180, 255, 255])
     mask = cv2.inRange(hsv, lower_purple, upper_purple)
     res = cv2.bitwise_and(img, img, mask=mask)
-    cv2.imshow("m",res)
     ret, thresh2 = cv2.threshold(res, 100, 255, cv2.THRESH_BINARY)
     thresh2=cv2.cvtColor(thresh2,cv2.COLOR_BGR2GRAY)
     dst=cv2.bitwise_not(img,img,mask=thresh2)
