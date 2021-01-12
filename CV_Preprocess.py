@@ -72,7 +72,7 @@ def remove_ink(img):
     return dst
 
 def main():
-    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_0164329.jpg")
+    img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_1731411.jpg")
     img=resize(img,700)
     res=preprocess(img)
     # res=shade_removal(img)
