@@ -30,9 +30,8 @@ def shade_removal(img):
 def preprocess(img):
     # shade_mask=shade_removal(img)
     # img=apply_mask(img,shade_mask)
-    img=test(img)
     img=hair_removal(img)
-    # img=remove_ink(img)
+    img=remove_ink(img)
     # mask=ROI(img)
     # res=apply_mask(img,mask)
     return img
@@ -60,30 +59,14 @@ def hair_removal(img):
     # cv2.imshow("thresh", thresh2)
     # cv2.imshow("blackhat",blackhat)
     return dst
-def test(img):
-    wimg = img[:, :, 0]
-    ret, thresh = cv2.threshold(wimg, 100, 255, cv2.THRESH_BINARY)
-    kernel = np.ones((7, 7), np.uint8)
-    closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-    erosion = cv2.erode(closing, kernel, iterations=1)
-    mask = cv2.bitwise_or(erosion, thresh)
-    white = np.ones(img.shape, np.uint8) * 255
-    white[:, :, 0] = mask
-    white[:, :, 1] = mask
-    white[:, :, 2] = mask
-    result = cv2.bitwise_or(img, white)
-    return result
 
 def remove_ink(img):
     hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
     lower_purple = np.array([40, 70, 70])
     upper_purple = np.array([180, 255, 255])
     mask = cv2.inRange(hsv, lower_purple, upper_purple)
-    res = cv2.bitwise_and(img, img, mask=mask)
-    ret, thresh2 = cv2.threshold(res, 100, 255, cv2.THRESH_BINARY)
-    thresh2=cv2.cvtColor(thresh2,cv2.COLOR_BGR2GRAY)
-    dst=cv2.bitwise_not(img,img,mask=thresh2)
-    return dst
+    img[mask > 0] = (np.mean(img[:,:,0]), np.mean(img[:,:,1]), np.mean(img[:,:,2]))
+    return img
 
 def main():
     img = cv2.imread("F:/jupyter_notebook/data/siim-isic-melanoma-classification/jpeg/train/ISIC_1731411.jpg")
